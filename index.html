@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drowsiness Detection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #00ff00;
+            margin-top: 20px;
+        }
+
+        #status {
+            font-size: 24px;
+            margin: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .status-active {
+            color: #00ff00;
+        }
+
+        .status-drowsy {
+            color: #ffa500;
+        }
+
+        .status-sleeping {
+            color: #ff0000;
+            font-size: 30px;
+            font-weight: bold;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        #video-container {
+            margin-top: 20px;
+        }
+
+        img {
+            width: 80%;
+            max-width: 640px;
+            max-height: 480px;
+            border-radius: 10px;
+            border: 4px solid #00ff00;
+        }
+
+        @media (max-width: 600px) {
+            img {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Drowsiness Detection System</h1>
+
+    <div id="video-container">
+        <img id="video_feed" src="{{ url_for('video_feed') }}" alt="Video Feed">
+    </div>
+
+    <h2 id="status">Status: <span></span></h2>
+
+    <script>
+        // Initialize Socket.IO connection
+        const socket = io();
+
+        // Listen for status updates from the server
+        socket.on('status_update', function (data) {
+            const statusElement = document.querySelector("#status span");
+
+            // Map backend status to frontend display text
+            let displayText = "";
+            if (data.status.includes("SLEEPING")) {
+                displayText = "Alert Sleeping";
+                statusElement.className = "status-sleeping";
+            } else if (data.status.includes("Drowsy")) {
+                displayText = "Feeling Drowsy";
+                statusElement.className = "status-drowsy";
+            } else {
+                displayText = "Active";
+                statusElement.className = "status-active";
+            }
+
+            // Update the status text
+            statusElement.textContent = displayText;
+        });
+    </script>
+
+</body>
+
+</html>
